@@ -1,9 +1,8 @@
 <?php
-declare(strict_types=1);
 
 require_once __DIR__ . '/db.php';
 
-function usuario_por_email(string $email): ?array
+function usuario_por_email($email)
 {
   $mysqli = db_connection();
   $sql = 'SELECT id, nome, email, password_hash, ativo FROM relatorio_usuarios WHERE email = ? LIMIT 1';
@@ -25,7 +24,7 @@ function usuario_por_email(string $email): ?array
   ];
 }
 
-function usuario_criar(string $nome, string $email, string $senha): int
+function usuario_criar($nome, $email, $senha)
 {
   $mysqli = db_connection();
   $hash = password_hash($senha, PASSWORD_DEFAULT);
@@ -38,7 +37,7 @@ function usuario_criar(string $nome, string $email, string $senha): int
   return (int) $mysqli->insert_id;
 }
 
-function usuario_autenticar(string $email, string $senha): array
+function usuario_autenticar($email, $senha)
 {
   $usuario = usuario_por_email($email);
 
@@ -49,7 +48,7 @@ function usuario_autenticar(string $email, string $senha): array
   return $usuario;
 }
 
-function usuario_criar_token_recuperacao(string $email): ?string
+function usuario_criar_token_recuperacao($email)
 {
   $usuario = usuario_por_email($email);
   if (!$usuario || (int) $usuario['ativo'] !== 1) {
@@ -72,7 +71,7 @@ function usuario_criar_token_recuperacao(string $email): ?string
   return $token;
 }
 
-function usuario_por_token_recuperacao(string $token): ?array
+function usuario_por_token_recuperacao($token)
 {
   $tokenHash = hash('sha256', $token);
   $agora = date('Y-m-d H:i:s');
@@ -100,7 +99,7 @@ function usuario_por_token_recuperacao(string $token): ?array
   ];
 }
 
-function usuario_atualizar_senha_por_token(string $token, string $senha): void
+function usuario_atualizar_senha_por_token($token, $senha)
 {
   $usuario = usuario_por_token_recuperacao($token);
   if (!$usuario) {
@@ -118,7 +117,7 @@ function usuario_atualizar_senha_por_token(string $token, string $senha): void
   $stmt->execute();
 }
 
-function url_base_app(): string
+function url_base_app()
 {
   $base = app_config('APP_BASE_URL', '');
   if ($base !== '') {
@@ -132,7 +131,7 @@ function url_base_app(): string
   return $scheme . '://' . $host;
 }
 
-function enviar_email_recuperacao(string $email, string $token): bool
+function enviar_email_recuperacao($email, $token)
 {
   $link = url_base_app() . '/recuperar.php?token=' . urlencode($token);
   $assunto = 'Recuperacao de senha - Relatorio Feedback Kazza';

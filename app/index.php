@@ -12,11 +12,11 @@ try {
   exit;
 }
 
-function simNao($v): string {
+function simNao($v) {
   return ($v === true || $v === 1 || $v === '1' || $v === 't' || $v === 'true') ? 'Sim' : 'Nao';
 }
 
-function formatarData($valor): string {
+function formatarData($valor) {
   if (empty($valor)) {
     return '';
   }

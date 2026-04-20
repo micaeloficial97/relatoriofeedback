@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 $config = [];
 $configPath = __DIR__ . '/config.php';
@@ -10,7 +9,7 @@ if (is_file($configPath)) {
   }
 }
 
-function app_config(string $key, ?string $default = null): ?string
+function app_config($key, $default = null)
 {
   global $config;
 
@@ -26,12 +25,12 @@ function app_config(string $key, ?string $default = null): ?string
   return $default;
 }
 
-function app_debug(): bool
+function app_debug()
 {
   return filter_var((string) app_config('APP_DEBUG', 'false'), FILTER_VALIDATE_BOOLEAN);
 }
 
-function db_connection(): mysqli
+function db_connection()
 {
   static $mysqli = null;
 
@@ -58,7 +57,7 @@ function db_connection(): mysqli
   return $mysqli;
 }
 
-function feedback_listar(int $limit = 2000): array
+function feedback_listar($limit = 2000)
 {
   $limit = max(1, min($limit, 5000));
   $mysqli = db_connection();
