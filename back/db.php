@@ -34,6 +34,10 @@ function db_connection()
 {
   static $mysqli = null;
 
+  if (!class_exists('mysqli')) {
+    throw new RuntimeException('Extensao mysqli nao esta habilitada no PHP do servidor.');
+  }
+
   if ($mysqli instanceof mysqli) {
     return $mysqli;
   }
