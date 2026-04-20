@@ -26,6 +26,11 @@ function app_config(string $key, ?string $default = null): ?string
   return $default;
 }
 
+function app_debug(): bool
+{
+  return filter_var((string) app_config('APP_DEBUG', 'false'), FILTER_VALIDATE_BOOLEAN);
+}
+
 function db_connection(): mysqli
 {
   static $mysqli = null;

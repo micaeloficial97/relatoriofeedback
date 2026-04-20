@@ -49,8 +49,12 @@ try {
   header('Location: ../login.php');
   exit;
 } catch (mysqli_sql_exception $e) {
+  error_log('register.php SQL error: ' . $e->getMessage());
+
   if ((int) $e->getCode() === 1062) {
     $_SESSION['flash_error'] = 'Este e-mail ja esta cadastrado. Faca login ou use "Esqueceu a senha?".';
+  } elseif (app_debug()) {
+    $_SESSION['flash_error'] = 'Erro SQL: ' . $e->getMessage();
   } else {
     $_SESSION['flash_error'] = 'Nao foi possivel criar a conta.';
   }
@@ -58,7 +62,11 @@ try {
   header('Location: ../registrar.php');
   exit;
 } catch (Throwable $e) {
-  $_SESSION['flash_error'] = 'Nao foi possivel criar a conta.';
+  error_log('register.php error: ' . $e->getMessage());
+
+  $_SESSION['flash_error'] = app_debug()
+    ? 'Erro: ' . $e->getMessage()
+    : 'Nao foi possivel criar a conta.';
   header('Location: ../registrar.php');
   exit;
 }
