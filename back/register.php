@@ -19,13 +19,13 @@ $name  = trim((string)($_POST['name'] ?? ''));
 $email = strtolower(trim((string)($_POST['email'] ?? '')));
 $pass  = (string)($_POST['password'] ?? '');
 
-if ($name === '' || mb_strlen($name) > 120) {
+if ($name === '' || strlen($name) > 120) {
   $_SESSION['flash_error'] = 'Informe um nome valido.';
   header('Location: ../registrar.php');
   exit;
 }
 
-if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 190) {
+if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 190) {
   $_SESSION['flash_error'] = 'Informe um e-mail valido.';
   header('Location: ../registrar.php');
   exit;

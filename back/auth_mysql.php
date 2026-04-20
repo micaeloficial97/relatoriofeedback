@@ -11,8 +11,18 @@ function usuario_por_email(string $email): ?array
   $stmt->bind_param('s', $email);
   $stmt->execute();
 
-  $row = $stmt->get_result()->fetch_assoc();
-  return $row ?: null;
+  $stmt->bind_result($id, $nome, $emailEncontrado, $passwordHash, $ativo);
+  if (!$stmt->fetch()) {
+    return null;
+  }
+
+  return [
+    'id' => $id,
+    'nome' => $nome,
+    'email' => $emailEncontrado,
+    'password_hash' => $passwordHash,
+    'ativo' => $ativo,
+  ];
 }
 
 function usuario_criar(string $nome, string $email, string $senha): int
@@ -78,8 +88,16 @@ function usuario_por_token_recuperacao(string $token): ?array
   $stmt->bind_param('ss', $tokenHash, $agora);
   $stmt->execute();
 
-  $row = $stmt->get_result()->fetch_assoc();
-  return $row ?: null;
+  $stmt->bind_result($id, $nome, $email);
+  if (!$stmt->fetch()) {
+    return null;
+  }
+
+  return [
+    'id' => $id,
+    'nome' => $nome,
+    'email' => $email,
+  ];
 }
 
 function usuario_atualizar_senha_por_token(string $token, string $senha): void

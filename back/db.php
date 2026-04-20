@@ -77,6 +77,34 @@ function feedback_listar(int $limit = 2000): array
   $stmt->bind_param('i', $limit);
   $stmt->execute();
 
-  $result = $stmt->get_result();
-  return $result->fetch_all(MYSQLI_ASSOC);
+  $stmt->bind_result(
+    $nome,
+    $email,
+    $telefone,
+    $resposta1,
+    $resposta2,
+    $resposta3,
+    $resposta4,
+    $evento,
+    $receberNovidades,
+    $data
+  );
+
+  $rows = [];
+  while ($stmt->fetch()) {
+    $rows[] = [
+      'nome' => $nome,
+      'email' => $email,
+      'telefone' => $telefone,
+      'resposta1' => $resposta1,
+      'resposta2' => $resposta2,
+      'resposta3' => $resposta3,
+      'resposta4' => $resposta4,
+      'evento' => $evento,
+      'receber_novidades' => $receberNovidades,
+      'data' => $data,
+    ];
+  }
+
+  return $rows;
 }
