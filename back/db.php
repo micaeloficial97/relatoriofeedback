@@ -49,12 +49,26 @@ function db_connection()
     throw new RuntimeException('Configuracao de banco incompleta.');
   }
 
-  mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+  $mysqli = @new mysqli($dbHost, $dbUser, $dbPass, $dbName, $dbPort);
+  if ($mysqli->connect_errno) {
+    throw new RuntimeException('Erro ao conectar no banco: ' . $mysqli->connect_error);
+  }
 
-  $mysqli = new mysqli($dbHost, $dbUser, $dbPass, $dbName, $dbPort);
-  $mysqli->set_charset($dbCharset);
+  if (!$mysqli->set_charset($dbCharset)) {
+    throw new RuntimeException('Erro ao configurar charset do banco: ' . $mysqli->error);
+  }
 
   return $mysqli;
+}
+
+function db_prepare($mysqli, $sql)
+{
+  $stmt = $mysqli->prepare($sql);
+  if (!$stmt) {
+    throw new RuntimeException('Erro ao preparar SQL: ' . $mysqli->error);
+  }
+
+  return $stmt;
 }
 
 function feedback_listar($limit = 2000)
@@ -77,9 +91,11 @@ function feedback_listar($limit = 2000)
     ORDER BY id DESC
     LIMIT ?";
 
-  $stmt = $mysqli->prepare($sql);
+  $stmt = db_prepare($mysqli, $sql);
   $stmt->bind_param('i', $limit);
-  $stmt->execute();
+  if (!$stmt->execute()) {
+    throw new RuntimeException('Erro ao consultar feedbacks: ' . $stmt->error);
+  }
 
   $stmt->bind_result(
     $nome,

@@ -6,9 +6,11 @@ function usuario_por_email($email)
 {
   $mysqli = db_connection();
   $sql = 'SELECT id, nome, email, password_hash, ativo FROM relatorio_usuarios WHERE email = ? LIMIT 1';
-  $stmt = $mysqli->prepare($sql);
+  $stmt = db_prepare($mysqli, $sql);
   $stmt->bind_param('s', $email);
-  $stmt->execute();
+  if (!$stmt->execute()) {
+    throw new RuntimeException('Erro ao buscar usuario: ' . $stmt->error);
+  }
 
   $stmt->bind_result($id, $nome, $emailEncontrado, $passwordHash, $ativo);
   if (!$stmt->fetch()) {
@@ -30,9 +32,11 @@ function usuario_criar($nome, $email, $senha)
   $hash = password_hash($senha, PASSWORD_DEFAULT);
 
   $sql = 'INSERT INTO relatorio_usuarios (nome, email, password_hash) VALUES (?, ?, ?)';
-  $stmt = $mysqli->prepare($sql);
+  $stmt = db_prepare($mysqli, $sql);
   $stmt->bind_param('sss', $nome, $email, $hash);
-  $stmt->execute();
+  if (!$stmt->execute()) {
+    throw new RuntimeException('Erro ao criar usuario: ' . $stmt->error);
+  }
 
   return (int) $mysqli->insert_id;
 }
@@ -63,10 +67,12 @@ function usuario_criar_token_recuperacao($email)
   $sql = 'UPDATE relatorio_usuarios
     SET reset_token_hash = ?, reset_expires_at = ?
     WHERE id = ?';
-  $stmt = $mysqli->prepare($sql);
+  $stmt = db_prepare($mysqli, $sql);
   $id = (int) $usuario['id'];
   $stmt->bind_param('ssi', $tokenHash, $expiraEm, $id);
-  $stmt->execute();
+  if (!$stmt->execute()) {
+    throw new RuntimeException('Erro ao salvar token de recuperacao: ' . $stmt->error);
+  }
 
   return $token;
 }
@@ -83,9 +89,11 @@ function usuario_por_token_recuperacao($token)
       AND reset_expires_at > ?
       AND ativo = 1
     LIMIT 1';
-  $stmt = $mysqli->prepare($sql);
+  $stmt = db_prepare($mysqli, $sql);
   $stmt->bind_param('ss', $tokenHash, $agora);
-  $stmt->execute();
+  if (!$stmt->execute()) {
+    throw new RuntimeException('Erro ao buscar token de recuperacao: ' . $stmt->error);
+  }
 
   $stmt->bind_result($id, $nome, $email);
   if (!$stmt->fetch()) {
@@ -111,10 +119,12 @@ function usuario_atualizar_senha_por_token($token, $senha)
   $sql = 'UPDATE relatorio_usuarios
     SET password_hash = ?, reset_token_hash = NULL, reset_expires_at = NULL
     WHERE id = ?';
-  $stmt = $mysqli->prepare($sql);
+  $stmt = db_prepare($mysqli, $sql);
   $id = (int) $usuario['id'];
   $stmt->bind_param('si', $hash, $id);
-  $stmt->execute();
+  if (!$stmt->execute()) {
+    throw new RuntimeException('Erro ao atualizar senha: ' . $stmt->error);
+  }
 }
 
 function url_base_app()
