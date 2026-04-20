@@ -1,8 +1,12 @@
 <?php
-declare(strict_types=1);
 
 require __DIR__ . '/session.php';
 require __DIR__ . '/auth_mysql.php';
+
+function registrar_log($message)
+{
+  @file_put_contents(__DIR__ . '/app_error.log', '[' . date('Y-m-d H:i:s') . '] ' . $message . PHP_EOL, FILE_APPEND);
+}
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
   http_response_code(405);
@@ -49,6 +53,7 @@ try {
   header('Location: ../login.php');
   exit;
 } catch (mysqli_sql_exception $e) {
+  registrar_log('register.php SQL error: ' . $e->getMessage());
   error_log('register.php SQL error: ' . $e->getMessage());
 
   if ((int) $e->getCode() === 1062) {
@@ -61,7 +66,8 @@ try {
 
   header('Location: ../registrar.php');
   exit;
-} catch (Throwable $e) {
+} catch (Exception $e) {
+  registrar_log('register.php error: ' . $e->getMessage());
   error_log('register.php error: ' . $e->getMessage());
 
   $_SESSION['flash_error'] = app_debug()
